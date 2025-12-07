@@ -1,14 +1,14 @@
 import { Link } from '@tanstack/react-router'
 import type { Address, Hex } from 'ox'
-import { ReceiptMark } from '#components/transaction/receipt/ReceiptMark'
-import { InfoCard } from '#components/ui/InfoCard'
-import { FormattedTimestamp } from '#components/ui/TimeFormat'
+import { ReceiptMark } from '#comps/ReceiptMark'
+import { InfoCard } from '#comps/InfoCard'
+import { FormattedTimestamp } from '#comps/TimeFormat'
 import { cx } from '#cva.config.ts'
 import { HexFormatter } from '#lib/formatting'
 import { useCopy } from '#lib/hooks'
 import CopyIcon from '~icons/lucide/copy'
 
-export function TransactionCard(props: TransactionCard.Props) {
+export function TxTransactionCard(props: TxTransactionCard.Props) {
 	const { hash, status, blockNumber, timestamp, from, to, className } = props
 	const { copy, notifying } = useCopy()
 	return (
@@ -125,7 +125,7 @@ function StatusBadge(props: { status: 'success' | 'reverted' }) {
 	)
 }
 
-export declare namespace TransactionCard {
+export declare namespace TxTransactionCard {
 	type Props = {
 		hash: Hex.Hex
 		status: 'success' | 'reverted'
