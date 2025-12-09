@@ -75,7 +75,10 @@ export const Route = createFileRoute('/_layout/block/$id')({
 				blockDetailQueryOptions(blockRef, page),
 			)
 		} catch (error) {
-			console.error(error)
+			console.warn('Failed to load block:', {
+				id: params.id,
+				error: error instanceof Error ? error.message : String(error),
+			})
 			throw notFound({
 				routeId: rootRouteId,
 				data: {

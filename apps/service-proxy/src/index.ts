@@ -8,6 +8,10 @@ app.use(
 	cors({
 		origin: (origin) => {
 			if (!origin) return null
+			if (!env.ALLOWED_HOSTNAMES) {
+				console.error('ALLOWED_HOSTNAMES environment variable is not configured')
+				return null
+			}
 			const allowed = env.ALLOWED_HOSTNAMES.split(',').some(
 				matchesOrigin(origin),
 			)
@@ -55,6 +59,13 @@ export default app
 async function rateLimit(c: Context, next: Next) {
 	const ip = c.req.raw.headers.get('cf-connecting-ip') || 'unknown'
 	const path = c.req.path
+	
+	if (!env.REQUESTS_RATE_LIMITER) {
+		console.warn('REQUESTS_RATE_LIMITER not configured - rate limiting disabled')
+		await next()
+		return
+	}
+	
 	const { success } = await env.REQUESTS_RATE_LIMITER.limit({
 		key: `${ip}:${path}`,
 	})

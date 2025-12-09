@@ -566,7 +566,8 @@ export async function extractContractAbi(
 
 		return result.abi as Abi
 	} catch (error) {
-		console.error('Failed to extract ABI:', error)
+		// Non-critical error - ABI extraction is optional
+		console.warn('Failed to extract ABI:', error)
 		return undefined
 	}
 }

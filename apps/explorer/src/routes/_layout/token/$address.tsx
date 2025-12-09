@@ -114,7 +114,10 @@ export const Route = createFileRoute('/_layout/token/$address')({
 			})
 			return { metadata, transfers: undefined }
 		} catch (error) {
-			console.error(error)
+			console.warn('Failed to load token metadata:', {
+				address,
+				error: error instanceof Error ? error.message : String(error),
+			})
 			// redirect to `/address/$address` and if it's not an address, that route will throw a notFound
 			throw redirect({ to: '/address/$address', params: { address } })
 		}

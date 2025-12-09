@@ -60,7 +60,10 @@ export const Route = createFileRoute('/_layout/tx/$hash')({
 				txQueryOptions({ hash: params.hash }),
 			)
 		} catch (error) {
-			console.error(error)
+			console.warn('Failed to load transaction:', {
+				hash: params.hash,
+				error: error instanceof Error ? error.message : String(error),
+			})
 			throw notFound({
 				routeId: rootRouteId,
 				data: {

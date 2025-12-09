@@ -6,7 +6,12 @@ import CopyIcon from '~icons/lucide/copy'
 
 export function ErrorBoundary({ error }: ErrorComponentProps) {
 	const copy = useCopy()
-	console.error(error)
+	// Log error with stack trace for debugging
+	console.error('ErrorBoundary caught error:', {
+		message: error?.message,
+		stack: error?.stack,
+		name: error?.name,
+	})
 	return (
 		<main className="flex min-h-dvh flex-col">
 			<Header />

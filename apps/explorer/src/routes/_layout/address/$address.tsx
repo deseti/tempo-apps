@@ -242,7 +242,11 @@ export const Route = createFileRoute('/_layout/address/$address')({
 				}),
 			)
 			.catch((error) => {
-				console.error('Fetch error (non-blocking):', error)
+				console.warn('Failed to fetch transactions (non-blocking):', {
+					address,
+					page,
+					error: error instanceof Error ? error.message : String(error),
+				})
 				return undefined
 			})
 
@@ -318,14 +322,17 @@ function RouteComponent() {
 		if (tab !== 'history') return
 		// preload next page only to reduce initial load overhead
 		async function preload() {
+			const nextPage = page + 1
 			try {
-				const nextPage = page + 1
 				router.preloadRoute({
 					to: '.',
 					search: { page: nextPage, tab, limit },
 				})
 			} catch (error) {
-				console.error('Preload error (non-blocking):', error)
+				console.warn('Failed to preload next page (non-blocking):', {
+					page: nextPage,
+					error: error instanceof Error ? error.message : String(error),
+				})
 			}
 		}
 

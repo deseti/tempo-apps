@@ -15,7 +15,8 @@ export function useCopy(props: useCopy.Props = { timeout: 800 }) {
 				setNotifying(true)
 				timer.current = setTimeout(() => setNotifying(false), timeout)
 			} catch (error) {
-				console.error('Failed to copy text: ', error)
+				// User-facing error - could show toast notification instead
+				console.warn('Failed to copy text:', error instanceof Error ? error.message : String(error))
 			}
 		},
 		[timeout],

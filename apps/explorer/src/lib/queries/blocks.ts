@@ -109,9 +109,10 @@ async function fetchKnownEventsForTransactions(
 
 				return [transaction.hash, events] as const
 			} catch (error) {
-				console.error('Failed to load transaction description', {
+				// Non-blocking error - transaction will show without parsed events
+				console.warn('Failed to load transaction description', {
 					hash: transaction.hash,
-					error,
+					error: error instanceof Error ? error.message : String(error),
 				})
 				return [transaction.hash, []] as const
 			}
