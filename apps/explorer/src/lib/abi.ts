@@ -150,7 +150,10 @@ export function decodeEventLog_guessed(args: {
 					topics: topics as [Hex, ...Hex[]],
 					data,
 				})
-			} catch {}
+			} catch {
+				// Continue trying different indexed input combinations
+				continue
+			}
 		}
 	}
 }
