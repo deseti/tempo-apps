@@ -72,7 +72,9 @@ export function TxDecodedCalldata(props: TxDecodedCalldata.Props) {
 				return {
 					args: decodeAbiParameters(abiItem.inputs, rawArgs),
 				}
-			} catch {}
+			} catch {
+				// Failed to decode - return undefined to display raw calldata
+			}
 		}
 		return { args: undefined }
 	}, [abiItem, rawArgs])
