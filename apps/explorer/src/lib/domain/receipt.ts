@@ -3,8 +3,8 @@ import { TokenRole } from 'ox/tempo'
 import {
 	type AbiEvent,
 	type Log,
-	parseEventLogs,
 	type TransactionReceipt,
+	parseEventLogs,
 	zeroAddress,
 } from 'viem'
 import { Abis, Addresses } from 'viem/tempo'
@@ -52,13 +52,21 @@ export function getFeeBreakdown(
 
 		const { currency, decimals, symbol } = metadata
 
+		let payerChecksum: Address.Address
+		try {
+			payerChecksum = Address.checksum(from)
+		} catch {
+			console.error(`Invalid payer address in fee breakdown: ${from}`)
+			continue
+		}
+
 		feeBreakdown.push({
 			amount,
 			currency,
 			decimals,
 			symbol,
 			token,
-			payer: Address.checksum(from),
+			payer: payerChecksum,
 		})
 	}
 
@@ -78,7 +86,14 @@ export namespace LineItems {
 		{ getTokenMetadata }: { getTokenMetadata: Tip20.GetTip20MetadataFn },
 	) {
 		const { from: sender, logs } = receipt
-		const senderChecksum = Address.checksum(sender)
+		let senderChecksum: Address.Address
+		try {
+			senderChecksum = Address.checksum(sender)
+		} catch {
+			throw new Error(
+				`Invalid sender address in transaction receipt: ${sender}`,
+			)
+		}
 
 		// Extract all of the event logs we can from the receipt.
 		const events = parseEventLogs({
@@ -184,7 +199,7 @@ export namespace LineItems {
 											decimals,
 											symbol,
 											token: event.address,
-										}
+									  }
 									: undefined,
 								ui: {
 									bottom: [
@@ -226,7 +241,9 @@ export namespace LineItems {
 										left: `Role: ${roleName}`,
 									},
 								],
-								left: `${roleName ? `${roleName} ` : ' '}Role ${hasRole ? 'Granted' : 'Revoked'}`,
+								left: `${roleName ? `${roleName} ` : ' '}Role ${
+									hasRole ? 'Granted' : 'Revoked'
+								}`,
 								right: '-',
 							},
 						}),
@@ -319,18 +336,27 @@ export namespace LineItems {
 								token,
 							},
 							ui: {
-								left: `${symbol} ${feePayer ? `(PAID BY ${HexFormatter.truncate(feePayer)})` : ''}`,
+								left: `${symbol} ${
+									feePayer ? `(PAID BY ${HexFormatter.truncate(feePayer)})` : ''
+								}`,
 								right: decimals ? PriceFormatter.format(amount, decimals) : '-',
 							},
 						})
 						feeEvents.push(feeLineItem)
+						let payerChecksum: Address.Address
+						try {
+							payerChecksum = Address.checksum(from)
+						} catch {
+							console.error(`Invalid payer address in fee breakdown: ${from}`)
+							break
+						}
 						items.feeBreakdown.push({
 							amount,
 							currency,
 							decimals,
 							symbol,
 							token,
-							payer: Address.checksum(from),
+							payer: payerChecksum,
 						})
 						break
 					}
@@ -347,7 +373,9 @@ export namespace LineItems {
 							},
 							ui: {
 								bottom: [...(memo ? [{ left: `Memo: ${memo}` }] : [])],
-								left: `Send ${symbol} ${to ? `to ${HexFormatter.truncate(to)}` : ''}`,
+								left: `Send ${symbol} ${
+									to ? `to ${HexFormatter.truncate(to)}` : ''
+								}`,
 								right: decimals
 									? PriceFormatter.format(isCredit ? -amount : amount, decimals)
 									: '-',
@@ -537,9 +565,7 @@ export namespace LineItem {
 		payer?: Address.Address
 	}
 
-	export function from<const item extends LineItem>(
-		item: item,
-	): item & {
+	export function from<const item extends LineItem>(item: item): item & {
 		eventName: item['event'] extends { eventName: infer eventName }
 			? eventName
 			: undefined

@@ -53,8 +53,8 @@ export const Route = createFileRoute('/api/address/$address')({
 						searchParams.include === 'sent'
 							? 'sent'
 							: searchParams.include === 'received'
-								? 'received'
-								: 'all'
+							? 'received'
+							: 'all'
 					const sortDirection = searchParams.sort === 'asc' ? 'asc' : 'desc'
 
 					const offset = Math.max(
@@ -195,10 +195,26 @@ export const Route = createFileRoute('/api/address/$address')({
 							.map((h) => txByHash.get(h.hash))
 							.filter((tx): tx is NonNullable<typeof tx> => tx != null)
 							.map((row) => {
-								const from = Address.checksum(row.from)
-								if (!from)
-									throw new Error('Transaction is missing a "from" address')
-								const to = row.to ? Address.checksum(row.to) : null
+								let from: Address.Address
+								try {
+									from = Address.checksum(row.from)
+								} catch {
+									throw new Error(
+										`Transaction has invalid "from" address: ${row.from}`,
+									)
+								}
+
+								let to: Address.Address | null = null
+								if (row.to) {
+									try {
+										to = Address.checksum(row.to)
+									} catch {
+										throw new Error(
+											`Transaction has invalid "to" address: ${row.to}`,
+										)
+									}
+								}
+
 								return {
 									blockHash: null,
 									blockNumber: Hex.fromNumber(row.block_num),
